@@ -20,9 +20,16 @@
 name: Build and deploy ASP.Net Core app to an Azure Web App
 
 env:
-  AZURE_WEBAPP_NAME: app-rebu-api02-dev    # set this to the name of your Azure Web App
+  AZURE_WEBAPP_NAME: az-api03-dev    # set this to the name of your Azure Web App
   AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
   DOTNET_VERSION: '5'                 # set this to the .NET Core version to use
+  WEBAPP: az-api03-dev
+  GROUP: rg-rebu-dev
+  ACCOUNT: blobgithubdeploydev  # Does not have to exist, this will be created for you
+  CONTAINER: apicore-deploy
+  EXPIRY_TIME: 20 minutes
+  SUBSCRIPTION: ef887292-c3be-4152-85f7-634720928e26
+  APP_URL: az-api03-dev-c8cgdhexgfdee7bg.eastus-01.azurewebsites.net
 
 on:
   push:
@@ -65,24 +72,50 @@ jobs:
           path: ${{env.DOTNET_ROOT}}/myapp
 
   deploy:
-    permissions:
-      contents: none
     runs-on: ubuntu-latest
     needs: build
+    
     environment:
       name: 'Development'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
         with:
           name: .net-app
 
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
+      - name: Zip the app contents
+        uses: papeloto/action-zip@v1
         with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          files: ${{env.DOTNET_ROOT}}/myapp
+          recursive: true
+          dest: app.zip
+
+      - name: Set SAS token expiration
+        run: echo "expiry=`date -u -d "$EXPIRY_TIME" '+%Y-%m-%dT%H:%MZ'`" >> $GITHUB_ENV
+ 
+      - name: Azure CLI script
+        uses: azure/CLI@v1
+        with:
+          azcliversion: 2.19.1
+          inlineScript: |
+            az storage blob upload --account-name $STORAGE_ACCOUNT -c $CONTAINER -f app.zip
+            APP_URL=$(az storage blob generate-sas --full-uri --permissions r --expiry $EXPIRY --account-name $STORAGE_ACCOUNT -c $CONTAINER -n app.zip | xargs)
+            az rest --method PUT \
+                    --uri https://management.azure.com/subscriptions/${SUBSCRIPTION}/resourceGroups/${RESOURCE_GROUP}/providers/Microsoft.Web/sites/${WEBAPP}/extensions/onedeploy?api-version=2020-12-01 \
+                    --body '{ 
+                        "properties": { 
+                            "properties": {
+                                "packageUri": "'"${APP_URL}"'"
+                            }, 
+                            "type": "zip",
+                        }
+                    }'
+
+            az storage container delete -n $CONTAINER --account-name $ACCOUNT 
