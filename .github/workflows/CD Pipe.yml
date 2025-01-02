@@ -89,16 +89,11 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: .net-app
-       
-      - name: Show directory
-        env:
-          GITHUB_CONTEXT: ${{env.DOTNET_ROOT}}
-        run: echo "$GITHUB_CONTEXT"
               
       - name: Zip the app contents
         uses: papeloto/action-zip@v1
         with:
-          files: ${{env.DOTNET_ROOT}}/WebApplication1
+          files: .net-app
           recursive: true
           dest: app.zip
 
