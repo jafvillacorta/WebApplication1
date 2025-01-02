@@ -89,19 +89,14 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: .net-app
-      
-      - name: List Files
-        id: list-files
-        uses: mirko-felice/list-files-action@v3.0.5
-        with:
-          repo: ${{ github.repository }}
-          ref: ${{ github.ref }}
-          path: "."
-      
+       
+      - name: Show directory
+        run: echo "${{env.DOTNET_ROOT}}"
+              
       - name: Zip the app contents
         uses: papeloto/action-zip@v1
         with:
-          files: ${{env.DOTNET_ROOT}}/WebApplication1
+          files: ${{env.DOTNET_ROOT}}/WebApplication1/WebApplication1
           recursive: true
           dest: app.zip
 
@@ -113,7 +108,7 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
-            az storage blob upload --account-name $ACCOUNT --container-name $CONTAINER --file app.zip -n app.zip
+            az storage blob upload --account-name $ACCOUNT --container-name $CONTAINER --file app.zip -n app.zip --overwrite
             APP_URL=$(az storage blob generate-sas --full-uri --permissions r --expiry $EXPIRY --account-name $ACCOUNT -c $CONTAINER -n app.zip | xargs)
             az rest --method PUT \
                     --uri https://management.azure.com/subscriptions/${SUBSCRIPTION}/resourceGroups/${RESOURCE_GROUP}/providers/Microsoft.Web/sites/${WEBAPP}/extensions/onedeploy?api-version=2020-12-01 \
