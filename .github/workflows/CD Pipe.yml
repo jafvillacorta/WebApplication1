@@ -93,7 +93,7 @@ jobs:
       - name: Zip the app contents
         uses: papeloto/action-zip@v1
         with:
-          files: .net-app
+          files: /home/runner/work/WebApplication1/WebApplication1
           recursive: true
           dest: app.zip
 
