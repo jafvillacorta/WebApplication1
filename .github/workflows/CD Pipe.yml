@@ -20,16 +20,16 @@
 name: Build and deploy ASP.Net Core app to an Azure Web App
 
 env:
-  AZURE_WEBAPP_NAME: az-api03-dev    # set this to the name of your Azure Web App
+  AZURE_WEBAPP_NAME: app-rebu-api02-dev    # set this to the name of your Azure Web App
   AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
   DOTNET_VERSION: '5'                 # set this to the .NET Core version to use
-  WEBAPP: az-api03-dev
+  WEBAPP: app-rebu-api02-dev
   GROUP: rg-rebu-dev
   ACCOUNT: blobgithubdeploydev  # Does not have to exist, this will be created for you
   CONTAINER: apicore-deploy
   EXPIRY_TIME: 20 minutes
   SUBSCRIPTION: ef887292-c3be-4152-85f7-634720928e26
-  APP_URL: az-api03-dev-c8cgdhexgfdee7bg.eastus-01.azurewebsites.net
+  APP_URL: app-rebu-api02-dev-h9ghd9fyb0defeey.eastus-01.azurewebsites.net
 
 on:
   push:
