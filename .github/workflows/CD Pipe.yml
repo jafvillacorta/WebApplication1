@@ -31,10 +31,10 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     
     - name: dotnet publish
-      run: dotnet publish -c Release -o "${{env.GITHUB_WORKSPACE}}\myapp"
+      run: dotnet publish ./WebApplication1 -c Release --property:PublishDir=../myapp
 
     - name: List Files
-      run: ls -R ${{env.GITHUB_WORKSPACE}}/myapp
+      run: ls -R ../myapp
 
     - name: Azure Login
       uses: azure/login@v2
@@ -44,7 +44,7 @@ jobs:
     - name: Zip the app contents
       uses: vimtor/action-zip@v1.2
       with:
-        files: ${{env.GITHUB_WORKSPACE}}/myapp
+        files: ../myapp
         recursive: true
         dest: app.zip
 
