@@ -28,7 +28,6 @@ env:
   ACCOUNT: blobgithubdeploydev  # Does not have to exist, this will be created for you
   CONTAINER: apicore-deploy
   EXPIRY_TIME: 20 minutes
-  SUBSCRIPTION: ef887292-c3be-4152-85f7-634720928e26
   APP_URL: app-rebu-api03-dev.azurewebsites.net
 
 on:
