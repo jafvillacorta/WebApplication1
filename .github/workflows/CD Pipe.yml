@@ -34,7 +34,7 @@ jobs:
       run: dotnet publish ./WebApplication1 -c Release --property:PublishDir=../myapp
 
     - name: List Files
-      run: ls -R ../myapp
+      run: ls -R ./myapp/
 
     - name: Azure Login
       uses: azure/login@v2
@@ -44,7 +44,7 @@ jobs:
     - name: Zip the app contents
       uses: vimtor/action-zip@v1.2
       with:
-        files: ../myapp
+        files: ./myapp/
         recursive: true
         dest: app.zip
 
