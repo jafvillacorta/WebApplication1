@@ -37,10 +37,10 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: .net-app
-        path: ../myapp
+        path: ${{env.DOTNET_ROOT}}/myapp
 
     - name: List Files
-      run: ls -R
+      run: ls -R ${{env.DOTNET_ROOT}}/myapp
 
     - name: Azure Login
       uses: azure/login@v2
